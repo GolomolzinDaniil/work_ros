@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR01",
+  "commit": "88af588a63a297941025df3ad1f1b2530433596b",
+  "course_kit": {
+    "version": "v1-w03",
+    "archive_sha256": "57866a9c98fa3abdec27b35a180697ee680bfb0f05cc015970ce306d6d849fea"
+  },
+  "time": {
+    "contact_academic_hours": 2.0,
+    "self_study_hours": 1.0
+  },
+  "ai_used": false,
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "commands": [
+    "ros2 run turtlesim turtlesim_node",
+    "ros2 run turtlesim turtle_teleop_key",
+    "ros2 topic hz /turtle1/pose",
+    "ros2 topic echo /turtle1/pose --once",
+    "ros2 node list --no-daemon --spin-time 2",
+    "ros2 doctor --report"
+  ],
+  "tests": [
+    {
+      "name": "nodes_visible_in_domain_16",
+      "status": "passed",
+      "evidence": "evidence/pr01/nodes-before.txt"
+    },
+    {
+      "name": "pose_hz_measured",
+      "status": "passed",
+      "evidence": "evidence/pr01/pose-hz.txt"
+    },
+    {
+      "name": "link_broken_in_domain_17",
+      "status": "passed",
+      "evidence": "evidence/pr01/pose-broken.txt"
+    },
+    {
+      "name": "link_restored_in_domain_16",
+      "status": "passed",
+      "evidence": "evidence/pr01/pose-fixed.txt"
+    }
+  ],
+  "defect": {
+    "reproducer": "Запуск turtle_teleop_key с ROS_DOMAIN_ID=17 при работающем turtlesim в ROS_DOMAIN_ID=16; нажатие стрелки ↑ не изменяет позу черепахи",
+    "root_cause": "ROS_DOMAIN_ID изолирует DDS-домены на уровне discovery; ноды в разных доменах не видят топиков и сервисов друг друга даже в одной физической сети",
+    "proof_after": "Возврат teleop в ROS_DOMAIN_ID=16 восстанавливает управление: поза изменяется после нажатия ↑ (pose-after-key-fixed.txt отличается от pose-before.txt)"
+  }
+}
