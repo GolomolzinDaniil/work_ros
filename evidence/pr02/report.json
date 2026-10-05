@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "practice_id": "PR02",
-  "commit": "6e5c178c8d62f414fbd0c6831bc8f15df8b4b429",
+  "commit": "5ad7c62a2d187af561363fd4dc618dc978528e79",
   "course_kit": {
-    "version": "v1-w05",
-    "archive_sha256": "2bca214e3de6f90f9513049dfa0f36fee65ad834da502dc3f3f8fb443517b5197"
+    "version": "v1-w02",
+    "archive_sha256": "5d210c431e32418f45e2cffa9dd2028116c7a9520a36f3c7079c778cd73437a8"
   },
   "commands": [
     "colcon build --symlink-install --packages-select turtle_bringup",
