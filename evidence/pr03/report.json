@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR03",
+  
+  "commit": "ff39d8963aa62a1c58b670b4381718b3a64409f3",
+  
+  "course_kit": {
+    "version": "v1-w03",
+    "archive_sha256": "7fbfd3e8161ab6c6ebefc7663efdaf77d9a7d490399743507f33dcefbd5ac522"
+  },
+  
+  "commands": [
+    "colcon build --symlink-install --packages-select patrol",
+    "source install/setup.bash",
+    "python3 -m pytest src/patrol/test/test_patrol.py -v",
+    "ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel",
+    "ros2 topic hz /turtle1/cmd_vel"
+  ],
+  
+  "tests": [
+    {"name": "test_no_pose_means_stop", "status": "passed"},
+    {"name": "test_received_pose_allows_fixed_command_without_mutation[0.0-0.0-0.0]", "status": "passed"},
+    {"name": "test_received_pose_allows_fixed_command_without_mutation[5.5-5.5-1.2]", "status": "passed"},
+    {"name": "test_subscription_updates_state_and_timer_uses_it", "status": "passed"}
+  ],
+  
+  "defect": {
+    "reproducer": "ros2 run patrol patrol (без remap). Симптом: черепашка не двигается, хотя нода запущена.",
+    "root_cause": "Нода публикует в относительный топик 'cmd_vel' (/patrol/cmd_vel), а turtlesim слушает абсолютный '/turtle1/cmd_vel'. Имена не совпадают.",
+    "proof_after": "ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel. Результат: черепашка движется, ros2 topic hz показывает ~10 Гц."
+  },
+  
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 2
+  },
+  
+  "ai_used": true
+}
