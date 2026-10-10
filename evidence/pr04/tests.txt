@@ -1,0 +1,16 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/danya/work_ros/src/patrol
+plugins: ament_xmllint-0.20.6, ament_pep257-0.20.6, launch_testing_ros-0.29.9, ament_lint-0.20.6, launch_testing-3.9.8, ament_mypy-0.20.6, ament_copyright-0.20.6, ament_flake8-0.20.6, typeguard-4.4.4, cov-5.0.0, colcon-core-0.21.3
+collecting ... collected 7 items
+
+src/patrol/test/test_patrol.py::test_default_parameters_flow PASSED      [ 14%]
+src/patrol/test/test_patrol.py::test_invalid_frequency_rejected PASSED   [ 28%]
+src/patrol/test/test_patrol.py::test_valid_frequency_restart_timer PASSED [ 42%]
+src/patrol/test/test_validate_params.py::test_linear_speed PASSED        [ 57%]
+src/patrol/test/test_validate_params.py::test_turn_rate PASSED           [ 71%]
+src/patrol/test/test_validate_params.py::test_publish_hz PASSED          [ 85%]
+src/patrol/test/test_validate_params.py::test_choose_command PASSED      [100%]
+
+============================== 7 passed in 3.74s ===============================

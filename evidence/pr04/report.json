@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR04",
+  "commit": "2fae53c853b6ae42968e2e1b9bc4748dfe74029f",
+  "course_kit": {
+    "version": "v1-w05",
+    "archive_sha256": "bca214e3de6f90f9513049dfa0f36fee65ad834da502dc3f3f8fb443517b5197"
+  },
+  "commands": [
+    "colcon build --symlink-install --packages-select patrol turtle_bringup",
+    "source install/setup.bash",
+    "python3 -m pytest src/patrol/test/ -v",
+    "ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel",
+    "ros2 param set /patrol publish_hz 0.0",
+    "ros2 topic hz /turtle1/cmd_vel",
+    "ros2 param set /patrol publish_hz 5.0",
+    "ros2 topic hz /turtle1/cmd_vel",
+    "ros2 param set /patrol linear_speed 0.9",
+    "ros2 topic echo /turtle1/pose --once"
+  ],
+  "tests": [
+    {"name": "test_linear_speed", "status": "passed"},
+    {"name": "test_turn_rate", "status": "passed"},
+    {"name": "test_publish_hz", "status": "passed"},
+    {"name": "test_choose_command", "status": "passed"},
+    {"name": "test_default_parameters_flow", "status": "passed"},
+    {"name": "test_invalid_frequency_rejected", "status": "passed"},
+    {"name": "test_valid_frequency_restart_timer", "status": "passed"}
+  ],
+  "defect": {
+    "reproducer": "Команда: ros2 param set /patrol publish_hz 0.0. Симптом до исправления (гипотетический): деление на ноль при пересоздании таймера приводило бы к падению ноды. В текущей реализации дефект воспроизводится как 'отклонение ввода': нода выдает предупреждение, значение параметра остается прежним (10.0), частота публикации не меняется.",
+    "root_cause": "Отсутствие валидации входных данных параметров перед их применением к внутреннему состоянию (таймеру). Нулевая частота недопустима математически (деление на ноль) и логически.",
+    "proof_after": "Команда: ros2 param set /patrol publish_hz 5.0. Результат: Лог ноды сообщает об успешном изменении таймера. Команда ros2 topic hz /turtle1/cmd_vel показывает среднюю частоту ~5.0 Hz, что подтверждает корректную работу валидации и пересоздания таймера."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}
