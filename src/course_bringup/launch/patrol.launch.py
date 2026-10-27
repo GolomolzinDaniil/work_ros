@@ -45,8 +45,8 @@ def generate_launch_description():
     # куда сохраняем
     bag_output_path = PathJoinSubstitution([
         FindPackageShare('course_bringup'),
-        '..', '..',
-        'evidence', 'pr05', 'bag'
+        '..', '..', '..', '..',
+        'bag'
     ])
 
     # ros2 bag record -s mcap -o /home/danya/ros2_ws/evidence/pr05/bag --topics /robot_a/sensor_pose
