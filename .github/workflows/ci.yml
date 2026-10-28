@@ -40,3 +40,8 @@ jobs:
         if: contains(github.ref, 'pr05') || contains(github.event.head_commit.message, 'PR05')
         run: |
           python3 .course-kit/v1/tools/check_practice.py PR05 --submission .
+      
+      - name: Run practice checker for PR06
+        if: contains(github.ref, 'pr06') || contains(github.event.head_commit.message, 'PR06')
+        run: |
+          python3 .course-kit/v1/tools/check_practice.py PR06 --submission .
