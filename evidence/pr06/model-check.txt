@@ -1,0 +1,9 @@
+robot name is: my_robot
+---------- Successfully Parsed XML ---------------
+root Link: base_link has 6 child(ren)
+    child(1):  front_left_wheel
+    child(2):  front_right_wheel
+    child(3):  imu_link
+    child(4):  lidar_link
+    child(5):  rear_left_wheel
+    child(6):  rear_right_wheel

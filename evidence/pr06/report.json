@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR06",
+  "commit": "295f2ff959df7af693ec7ec235b8b79780970c29",
+  "course_kit": {
+    "version": "v1-w08",
+    "archive_sha256": "aea8efd0a51668af63f2e475b82bfa28bd76c21f20d8afea6b136d43a56a88fb"
+  },
+  "commands": [
+    "source /opt/ros/lyrical/setup.bash",
+    "colcon build --symlink-install --packages-select course_description",
+    "source install/setup.bash",
+    "xacro src/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle.urdf",
+    "check_urdf /tmp/vehicle.urdf > evidence/pr06/model-check.txt 2>&1",
+    "ros2 launch course_description display.launch.py",
+    "ros2 run tf2_ros tf2_echo base_link lidar_link",
+    "ros2 run tf2_tools view_frames",
+    "ros2 topic info /tf_static --verbose > evidence/pr06/tf-qos.txt 2>&1",
+    "timeout 4 ros2 topic echo /tf_static --once --qos-durability transient_local --qos-reliability reliable >> evidence/pr06/tf-qos.txt 2>&1; echo \"exit=$?\" >> evidence/pr06/tf-qos.txt",
+    "timeout 4 ros2 topic echo /tf_static --once --qos-durability volatile --qos-reliability reliable >> evidence/pr06/tf-qos.txt 2>&1; echo \"exit=$?\" >> evidence/pr06/tf-qos.txt"
+  ],
+  "tests": [
+    {"name": "test_xacro_expands_without_gazebo_plugins", "status": "passed"},
+    {"name": "test_required_links_exist", "status": "passed"},
+    {"name": "test_sensor_parents_are_base_link", "status": "passed"},
+    {"name": "test_wheel_joints_are_continuous", "status": "passed"},
+    {"name": "test_tree_is_connected_and_acyclic", "status": "passed"},
+    {"name": "test_inertias_are_positive", "status": "passed"}
+  ],
+  "defect": {
+    "reproducer": "sed -i 's/<parent link=\"base_link\" \\/>/<parent link=\"imu_link\" \\/>/' src/course_description/urdf/vehicle.urdf.xacro && colcon build --packages-select course_description && source install/setup.bash && ros2 run tf2_ros tf2_echo base_link lidar_link",
+    "root_cause": "В URDF/Xacro изменён родитель для lidar_joint с base_link на imu_link при сохранении прежнего origin. Это приводит к нарушению связности TF-дерева: путь от корня (base_link) к лидару разрывается, так как imu_link не является прямым потомком base_link в данной конфигурации. RViz не может отобразить лидар, а tf2_echo выдаёт ошибку 'frame does not exist'.",
+    "proof_after": "git checkout src/course_description/urdf/vehicle.urdf.xacro && colcon build --packages-select course_description && source install/setup.bash && ros2 run tf2_ros tf2_echo base_link lidar_link"
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}
