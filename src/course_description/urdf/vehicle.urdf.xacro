@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="my_robot">
 
-  <!-- base_link (каркаc машины) params -->
+  <!-- base_link (каркас машины) params -->
   <xacro:property name="base_length" value="1.05"/>
   <xacro:property name="base_width" value="0.52"/>
   <xacro:property name="base_height" value="0.22"/>
@@ -12,15 +12,15 @@
   <!-- 
     точный коэффициент пропорциональности между приложенным моментом силы и resulting угловым ускорением.
     ixx = ∫ρ(y^2+z^2)dV, ρ*dV = mass (мин.часть) 
-   -->
+  -->
   <xacro:property name="base_ixx" value="0.55" />
   <xacro:property name="base_iyy" value="1.10" />
   <xacro:property name="base_izz" value="1.40" />
 
-  <!-- ixy, ixz, iyz - центробежные моменты (не ограниен)-->
+  <!-- ixy, ixz, iyz - центробежные моменты (не ограничены)-->
   <!-- 
     мера асимметрии распределения массы относительно осей координат:
-    ixy = −∫ρ⋅x⋅ydV
+    ixy = −∫ρ⋅xydV
     =0, при условии симметрии объекта
   -->
 
@@ -67,24 +67,18 @@
 
   <!-- lidar_link (лидар) params-->
   <xacro:property name="lidar_x" value="0.28" />
-  <xacro:property name="lidar_z" value="0.38" />
-  <xacro:property name="lidar_r" value="0.06" />
-  <xacro:property name="lidar_l" value="0.1" />
+  <xacro:property name="lidar_y" value="0.0" />
+  <!-- Z лидара считается ОТ НИЗА КУЗОВА (${base_height}) + нужный отступ -->
+  <xacro:property name="lidar_z_rel" value="0.03" /> 
 
   <!-- lidar_link -->
   <link name="lidar_link">
     <visual>
-      <geometry>
-       <cylinder radius="${lidar_r}" length="${lidar_l}"/> 
-      </geometry>
-      <material name="lidar_red">
-        <color rgba="1.0 0.0 0.0 1.0"/>
-      </material>
+      <geometry><cylinder radius="0.06" length="0.1"/></geometry>
+      <material name="lidar_red"><color rgba="1.0 0.0 0.0 1.0"/></material>
     </visual>
     <collision>
-      <geometry>
-       <cylinder radius="${lidar_r}" length="${lidar_l}"/> 
-      </geometry>       
+      <geometry><cylinder radius="0.06" length="0.1"/></geometry>       
     </collision>
     <inertial>
         <mass value="0.033"/>
@@ -100,29 +94,26 @@
   </link>
 
   <!-- base + lidar-->
-  <joint name="lidar_join" type="fixed">
+  <joint name="lidar_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_link"/>
-    <origin xyz="${lidar_x} 0.0 ${lidar_z}" rpy="0.0 0.0 0.0"/>
+    <!-- Прибавляем высоту кузова, чтобы считать от его верха -->
+    <origin xyz="${lidar_x} ${lidar_y} ${base_height + lidar_z_rel}" rpy="0.0 0.0 0.0"/>
   </joint>
 
   <!-- imu_link (инерциальный измерительный модуль) params -->
-  <xacro:property name="imu_size" value="0.05" />
+  <xacro:property name="imu_x" value="0.28" />
+  <xacro:property name="imu_y" value="-0.15" />
+  <xacro:property name="imu_z_rel" value="0.01" />
 
   <!-- imu_link -->
   <link name="imu_link">
     <visual>
-      <geometry>
-        <box size="${imu_size} ${imu_size} ${imu_size * 0.4}" />
-      </geometry>
-      <material name="imu_orange">
-        <color rgba="1.0 0.5 0.0 1.0" />
-      </material>
+      <geometry><box size="0.05 0.05 0.02" /></geometry>
+      <material name="imu_orange"><color rgba="1.0 0.5 0.0 1.0" /></material>
     </visual>
     <collision>
-      <geometry>
-        <box size="${imu_size} ${imu_size} ${imu_size * 0.4}" />
-      </geometry>
+      <geometry><box size="0.05 0.05 0.02" /></geometry>
     </collision>
     <inertial>
       <mass value="0.033" />
@@ -134,7 +125,34 @@
   <joint name="imu_joint" type="fixed">
     <parent link="base_link" />
     <child link="imu_link" />
-    <origin xyz="${lidar_x} 0 ${lidar_z - 0.1}" rpy="0 0 0" />
+    <origin xyz="${imu_x} ${imu_y} ${base_height + imu_z_rel}" rpy="0 0 0" />
+  </joint>
+
+  <!-- camera_link params -->
+  <xacro:property name="camera_x" value="0.28" />
+  <xacro:property name="camera_y" value="0.15" />
+  <xacro:property name="camera_z_rel" value="0.02" />
+
+  <!-- camera_link -->
+  <link name="camera_link">
+    <visual>
+      <geometry><box size="0.06 0.1 0.04" /></geometry>
+      <material name="camera_green"><color rgba="0.0 1.0 0.0 1.0" /></material>
+    </visual>
+    <collision>
+      <geometry><box size="0.06 0.1 0.04" /></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.033" />
+      <inertia ixx="0.0003" ixy="0" ixz="0" iyy="0.0003" iyz="0" izz="0.0003" />
+    </inertial>
+  </link>
+
+  <!-- base + camera -->
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="camera_link" />
+    <origin xyz="${camera_x} ${camera_y} ${base_height + camera_z_rel}" rpy="0 0 0" />
   </joint>
 
   <!-- wheel_link (колесо) params -->
@@ -148,6 +166,8 @@
   <!-- wheel_macro -->
   <xacro:macro name="wheel" params="prefix parent x y z_offset">
     <link name="${prefix}_wheel">
+      
+      <!-- визуал -->
       <visual>
         <!-- Колесо лежит на боку, поэтому поворачиваем геометрию -->
         <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
@@ -158,12 +178,16 @@
           <color rgba="0.1 0.1 0.1 1.0" />
         </material>
       </visual>
+
+      <!-- коллизии (bbox) -->
       <collision>
         <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
         <geometry>
           <cylinder radius="${wheel_radius}" length="${wheel_width}" />
         </geometry>
       </collision>
+
+      <!-- инерция (физика объекта) -->
       <inertial>
         <mass value="${wheel_mass}" />
         <inertia ixx="${wheel_ixx}" ixy="0" ixz="0" iyy="${wheel_iyy}" iyz="0" izz="${wheel_izz}" />
@@ -173,19 +197,27 @@
     <joint name="${prefix}_wheel_joint" type="continuous">
       <parent link="${parent}" />
       <child link="${prefix}_wheel" />
-      <!-- Сдвигаем колесо вниз от центра корпуса на радиус + зазор -->
+      <!-- Центр колеса на уровне земли (Z=0), низ уходит в землю на радиус -->
       <origin xyz="${x} ${y} ${z_offset}" rpy="0 0 0" />
       <!-- Ось вращения - ось Y локальной системы колеса -->
       <axis xyz="0 1 0" />
     </joint>
   </xacro:macro>
 
-  <!-- передние колеса -->
-  <xacro:wheel prefix="front_left" parent="base_link" x="0.4" y="0.31" z_offset="-0.1" />
-  <xacro:wheel prefix="front_right" parent="base_link" x="0.4" y="-0.31" z_offset="-0.1" />
-  <!-- задние колеса -->
-  <xacro:wheel prefix="rear_left" parent="base_link" x="-0.4" y="0.31" z_offset="-0.1" />
-  <xacro:wheel prefix="rear_right" parent="base_link" x="-0.4" y="-0.31" z_offset="-0.1" />
 
-  
+  fixed
+  continuous
+  revolute
+  prismatic
+  floating
+  planar
+
+
+  <!-- передние колеса (напрямую к base_link, без кулаков) -->
+  <xacro:wheel prefix="front_left" parent="base_link" x="0.4" y="0.31" z_offset="0.0" />
+  <xacro:wheel prefix="front_right" parent="base_link" x="0.4" y="-0.31" z_offset="0.0" />
+  <!-- задние колеса (напрямую к base_link) -->
+  <xacro:wheel prefix="rear_left" parent="base_link" x="-0.4" y="0.31" z_offset="0.0" />
+  <xacro:wheel prefix="rear_right" parent="base_link" x="-0.4" y="-0.31" z_offset="0.0" />
+
 </robot>

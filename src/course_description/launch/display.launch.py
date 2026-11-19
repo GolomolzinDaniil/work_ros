@@ -14,7 +14,6 @@ def generate_launch_description():
         'vehicle.urdf.xacro',
     ])
 
-    # ВАЖНО: Оборачиваем Command в ParameterValue со значением str
     robot_description = ParameterValue(
         Command([
             FindExecutable(name='xacro'),

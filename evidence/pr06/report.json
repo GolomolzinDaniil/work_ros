@@ -10,13 +10,21 @@
     "source /opt/ros/lyrical/setup.bash",
     "colcon build --symlink-install --packages-select course_description",
     "source install/setup.bash",
+
     "xacro src/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle.urdf",
+
     "check_urdf /tmp/vehicle.urdf > evidence/pr06/model-check.txt 2>&1",
+
     "ros2 launch course_description display.launch.py",
+
     "ros2 run tf2_ros tf2_echo base_link lidar_link",
+
     "ros2 run tf2_tools view_frames",
+
     "ros2 topic info /tf_static --verbose > evidence/pr06/tf-qos.txt 2>&1",
+
     "timeout 4 ros2 topic echo /tf_static --once --qos-durability transient_local --qos-reliability reliable >> evidence/pr06/tf-qos.txt 2>&1; echo \"exit=$?\" >> evidence/pr06/tf-qos.txt",
+    
     "timeout 4 ros2 topic echo /tf_static --once --qos-durability volatile --qos-reliability reliable >> evidence/pr06/tf-qos.txt 2>&1; echo \"exit=$?\" >> evidence/pr06/tf-qos.txt"
   ],
   "tests": [
